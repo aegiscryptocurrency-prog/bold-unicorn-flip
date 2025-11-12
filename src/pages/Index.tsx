@@ -22,6 +22,20 @@ const Index = () => {
           <Link to="/appraise-item">
             <Button className="w-full sm:w-auto" variant="outline">Appraise an Item</Button>
           </Link>
+          <Link to="/appraisal-result">
+            <Button className="w-full sm:w-auto" variant="ghost">View Sample Appraisal Result</Button>
+          </Link>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center mt-4">
+          <Link to="/find-match-buyer">
+            <Button className="w-full sm:w-auto">Find a Match Buyer</Button>
+          </Link>
+          <Link to="/find-match-seller">
+            <Button className="w-full sm:w-auto" variant="secondary">Find a Match Seller</Button>
+          </Link>
+          <Link to="/initiate-transaction">
+            <Button className="w-full sm:w-auto" variant="destructive">Initiate Transaction (Escrow)</Button>
+          </Link>
         </div>
       </div>
       <MadeWithDyad />
