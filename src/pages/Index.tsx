@@ -39,6 +39,9 @@ const Index = () => {
           <Link to="/transaction-history">
             <Button className="w-full sm:w-auto" variant="link">View Transaction History</Button>
           </Link>
+          <Link to="/messages">
+            <Button className="w-full sm:w-auto">Messages</Button>
+          </Link>
         </div>
       </div>
       <MadeWithDyad />

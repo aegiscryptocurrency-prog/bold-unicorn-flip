@@ -12,7 +12,8 @@ import AppraisalResultPage from "./pages/AppraisalResultPage";
 import FindMatchBuyerPage from "./pages/FindMatchBuyerPage";
 import FindMatchSellerPage from "./pages/FindMatchSellerPage";
 import TransactionPage from "./pages/TransactionPage";
-import TransactionHistoryPage from "./pages/TransactionHistoryPage"; // Import new page
+import TransactionHistoryPage from "./pages/TransactionHistoryPage";
+import MessagesPage from "./pages/MessagesPage"; // Import new page
 
 const queryClient = new QueryClient();
 
@@ -31,7 +32,8 @@ const App = () => (
           <Route path="/find-match-buyer" element={<FindMatchBuyerPage />} />
           <Route path="/find-match-seller" element={<FindMatchSellerPage />} />
           <Route path="/initiate-transaction" element={<TransactionPage />} />
-          <Route path="/transaction-history" element={<TransactionHistoryPage />} /> {/* New route */}
+          <Route path="/transaction-history" element={<TransactionHistoryPage />} />
+          <Route path="/messages" element={<MessagesPage />} /> {/* New route */}
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
