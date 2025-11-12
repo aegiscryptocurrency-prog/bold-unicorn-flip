@@ -19,6 +19,9 @@ const Index = () => {
           <Link to="/consumer-account">
             <Button className="w-full sm:w-auto" variant="secondary">Go to Consumer Account</Button>
           </Link>
+          <Link to="/appraise-item">
+            <Button className="w-full sm:w-auto" variant="outline">Appraise an Item</Button>
+          </Link>
         </div>
       </div>
       <MadeWithDyad />

@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import CollectorAccountPage from "./pages/CollectorAccountPage";
 import ConsumerAccountPage from "./pages/ConsumerAccountPage";
+import AppraisalPage from "./pages/AppraisalPage"; // Import the new page
 
 const queryClient = new QueryClient();
 
@@ -20,6 +21,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/collector-account" element={<CollectorAccountPage />} />
           <Route path="/consumer-account" element={<ConsumerAccountPage />} />
+          <Route path="/appraise-item" element={<AppraisalPage />} /> {/* New route */}
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
