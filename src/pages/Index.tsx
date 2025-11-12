@@ -36,6 +36,9 @@ const Index = () => {
           <Link to="/initiate-transaction">
             <Button className="w-full sm:w-auto" variant="destructive">Initiate Transaction (Escrow)</Button>
           </Link>
+          <Link to="/transaction-history">
+            <Button className="w-full sm:w-auto" variant="link">View Transaction History</Button>
+          </Link>
         </div>
       </div>
       <MadeWithDyad />
