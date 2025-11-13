@@ -7,9 +7,9 @@ import { Button } from "@/components/ui/button";
 import { supabase } from '@/lib/supabase';
 import { showError } from '@/utils/toast';
 import { useAuth } from '@/hooks/use-auth';
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import AppraisalCard from '@/components/AppraisalCard'; // Import the new component
 
 interface Appraisal {
   id: string;
@@ -145,40 +145,7 @@ const BrowseAppraisals: React.FC = () => {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredAppraisals.map((appraisal) => (
-                <Card key={appraisal.id} className="flex flex-col">
-                  <CardHeader className="flex-grow">
-                    <img
-                      src={appraisal.item_photo_url}
-                      alt={appraisal.item_name}
-                      className="w-full h-48 object-cover rounded-md mb-4"
-                    />
-                    <CardTitle className="text-xl font-semibold truncate">{appraisal.item_name}</CardTitle>
-                    <CardDescription className="line-clamp-2">{appraisal.item_description}</CardDescription>
-                  </CardHeader>
-                  <CardContent className="pt-0">
-                    <div className="flex justify-between items-center mb-4">
-                      <Badge
-                        variant={
-                          appraisal.status === 'pending'
-                            ? 'secondary'
-                            : appraisal.status === 'appraised'
-                            ? 'default'
-                            : 'outline'
-                        }
-                      >
-                        {appraisal.status}
-                      </Badge>
-                      {appraisal.appraisal_data?.estimated_value && (
-                        <span className="text-lg font-bold text-primary">
-                          {appraisal.appraisal_data.estimated_value}
-                        </span>
-                      )}
-                    </div>
-                    <Button className="w-full" onClick={() => navigate(`/appraisal/${appraisal.id}`)}>
-                      View Details
-                    </Button>
-                  </CardContent>
-                </Card>
+                <AppraisalCard key={appraisal.id} appraisal={appraisal} />
               ))}
             </div>
           )}

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from '@/lib/supabase';
 import { showError } from '@/utils/toast';
 import { useAuth } from '@/hooks/use-auth';
-import { Badge } from "@/components/ui/badge";
+import AppraisalCard from '@/components/AppraisalCard'; // Import the new component
 
 // Define the structure of a single item as it comes directly from the Supabase query
 interface RawSupabaseInterest {
@@ -22,6 +22,7 @@ interface RawSupabaseInterest {
     appraisal_data: {
       estimated_value?: string;
     } | null;
+    created_at: string; // Added created_at here
   } | null; // 'appraisal' can be null if the joined record doesn't exist
 }
 
@@ -38,6 +39,7 @@ interface Interest {
     appraisal_data: {
       estimated_value?: string;
     } | null;
+    created_at: string; // Added created_at here
   };
 }
 
@@ -68,7 +70,8 @@ const MyInterests: React.FC = () => {
             item_description,
             item_photo_url,
             status,
-            appraisal_data
+            appraisal_data,
+            created_at
           )
         `)
         .eq('user_id', user.id)
@@ -97,6 +100,7 @@ const MyInterests: React.FC = () => {
               item_photo_url: appraisalData.item_photo_url,
               status: appraisalData.status,
               appraisal_data: appraisalData.appraisal_data,
+              created_at: appraisalData.created_at, // Ensure this is extracted
             } : null,
           };
         });
@@ -150,40 +154,7 @@ const MyInterests: React.FC = () => {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {interests.map((interest) => (
-                <Card key={interest.id} className="flex flex-col">
-                  <CardHeader className="flex-grow">
-                    <img
-                      src={interest.appraisal.item_photo_url}
-                      alt={interest.appraisal.item_name}
-                      className="w-full h-48 object-cover rounded-md mb-4"
-                    />
-                    <CardTitle className="text-xl font-semibold truncate">{interest.appraisal.item_name}</CardTitle>
-                    <CardDescription className="line-clamp-2">{interest.appraisal.item_description}</CardDescription>
-                  </CardHeader>
-                  <CardContent className="pt-0">
-                    <div className="flex justify-between items-center mb-4">
-                      <Badge
-                        variant={
-                          interest.appraisal.status === 'pending'
-                            ? 'secondary'
-                            : interest.appraisal.status === 'appraised'
-                            ? 'default'
-                            : 'outline'
-                        }
-                      >
-                        {interest.appraisal.status}
-                      </Badge>
-                      {interest.appraisal.appraisal_data?.estimated_value && (
-                        <span className="text-lg font-bold text-primary">
-                          {interest.appraisal.appraisal_data.estimated_value}
-                        </span>
-                      )}
-                    </div>
-                    <Button className="w-full" onClick={() => navigate(`/appraisal/${interest.appraisal.id}`)}>
-                      View Details
-                    </Button>
-                  </CardContent>
-                </Card>
+                <AppraisalCard key={interest.id} appraisal={interest.appraisal} />
               ))}
             </div>
           )}
