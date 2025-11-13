@@ -37,23 +37,47 @@ const AppraisalSubmission: React.FC = () => {
     }
 
     setLoading(true);
-    try {
-      // In a real application, you would upload the image to Supabase Storage
-      // and get a public URL. For now, we'll use a placeholder.
-      const mockPhotoUrl = 'https://via.placeholder.com/150?text=Item+Image';
+    let itemPhotoUrl = '';
 
-      const { error } = await supabase
+    try {
+      // 1. Upload image to Supabase Storage
+      const fileExtension = itemPhoto.name.split('.').pop();
+      const filePath = `${user.id}/${Date.now()}.${fileExtension}`; // Unique path for the image
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('appraisal-images') // Assuming you have a bucket named 'appraisal-images'
+        .upload(filePath, itemPhoto, {
+          cacheControl: '3600',
+          upsert: false,
+        });
+
+      if (uploadError) {
+        throw new Error(`Image upload failed: ${uploadError.message}`);
+      }
+
+      // 2. Get public URL of the uploaded image
+      const { data: publicUrlData } = supabase.storage
+        .from('appraisal-images')
+        .getPublicUrl(filePath);
+      
+      if (!publicUrlData?.publicUrl) {
+        throw new Error('Could not get public URL for the uploaded image.');
+      }
+      itemPhotoUrl = publicUrlData.publicUrl;
+
+      // 3. Insert appraisal record with the actual image URL
+      const { error: insertError } = await supabase
         .from('appraisals')
         .insert({
           user_id: user.id,
           item_name: itemName,
           item_description: itemDescription,
-          item_photo_url: mockPhotoUrl,
+          item_photo_url: itemPhotoUrl,
           status: 'pending',
         });
 
-      if (error) {
-        throw error;
+      if (insertError) {
+        throw new Error(`Appraisal submission failed: ${insertError.message}`);
       }
 
       showSuccess('Appraisal submitted successfully! We will review it shortly.');
