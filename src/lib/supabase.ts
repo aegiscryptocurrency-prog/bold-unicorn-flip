@@ -5,6 +5,14 @@ import { createClient } from '@supabase/supabase-js';
 // VITE_PUBLIC_SUPABASE_URL=YOUR_SUPABASE_URL
 // VITE_PUBLIC_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
 
+// --- START DEBUGGING CODE ---
+console.log('--- Debugging Environment Variables ---');
+console.log('import.meta.env:', import.meta.env);
+console.log('VITE_PUBLIC_SUPABASE_URL:', import.meta.env.VITE_PUBLIC_SUPABASE_URL);
+console.log('VITE_PUBLIC_SUPABASE_ANON_KEY:', import.meta.env.VITE_PUBLIC_SUPABASE_ANON_KEY);
+console.log('-------------------------------------');
+// --- END DEBUGGING CODE ---
+
 // Correctly access client-side environment variables using import.meta.env
 const supabaseUrl = import.meta.env.VITE_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_PUBLIC_SUPABASE_ANON_KEY;
