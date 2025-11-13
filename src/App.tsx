@@ -12,7 +12,8 @@ import ProfileSetup from "./pages/ProfileSetup";
 import AppraisalSubmission from "./pages/AppraisalSubmission";
 import MyAppraisals from "./pages/MyAppraisals";
 import AppraisalDetails from "./pages/AppraisalDetails";
-import BrowseAppraisals from "./pages/BrowseAppraisals"; // Import the new BrowseAppraisals page
+import BrowseAppraisals from "./pages/BrowseAppraisals";
+import AppraisalManagement from "./pages/AppraisalManagement"; // Import the new AppraisalManagement page
 import AuthLayout from "./components/AuthLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Navbar from "./components/Navbar";
@@ -51,8 +52,12 @@ const App = () => {
               <Route path="/submit-appraisal" element={<AppraisalSubmission />} />
               <Route path="/my-appraisals" element={<MyAppraisals />} />
               <Route path="/appraisal/:id" element={<AppraisalDetails />} />
-              <Route path="/browse-appraisals" element={<BrowseAppraisals />} /> {/* Add BrowseAppraisals route */}
-              {/* Future protected routes like profile pages will go here */}
+              <Route path="/browse-appraisals" element={<BrowseAppraisals />} />
+            </Route>
+
+            {/* Collector-specific Protected Route */}
+            <Route element={<ProtectedRoute requiredAccountType="collector" />}>
+              <Route path="/appraisal-management" element={<AppraisalManagement />} />
             </Route>
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

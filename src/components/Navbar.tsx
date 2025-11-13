@@ -9,7 +9,7 @@ import { useAuth } from '@/hooks/use-auth';
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, profile } = useAuth(); // Destructure profile here
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -41,6 +41,11 @@ const Navbar: React.FC = () => {
             <Link to="/browse-appraisals" className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">
               Browse Appraisals
             </Link>
+            {profile?.account_type === 'collector' && (
+              <Link to="/appraisal-management" className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">
+                Appraisal Management
+              </Link>
+            )}
             <Button onClick={handleSignOut} variant="outline">
               Sign Out
             </Button>

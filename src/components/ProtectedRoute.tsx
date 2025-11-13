@@ -4,8 +4,12 @@ import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
 
-const ProtectedRoute: React.FC = () => {
-  const { user, loading } = useAuth();
+interface ProtectedRouteProps {
+  requiredAccountType?: 'collector' | 'consumer';
+}
+
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ requiredAccountType }) => {
+  const { user, profile, loading } = useAuth();
 
   if (loading) {
     return (
@@ -15,7 +19,17 @@ const ProtectedRoute: React.FC = () => {
     );
   }
 
-  return user ? <Outlet /> : <Navigate to="/signin" replace />;
+  if (!user) {
+    return <Navigate to="/signin" replace />;
+  }
+
+  if (requiredAccountType && (!profile || profile.account_type !== requiredAccountType)) {
+    // If a specific account type is required and the user doesn't match, redirect to dashboard
+    // or a more appropriate "access denied" page. For now, dashboard.
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <Outlet />;
 };
 
 export default ProtectedRoute;
