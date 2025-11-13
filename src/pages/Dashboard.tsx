@@ -2,10 +2,13 @@
 
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { useAuth } from '@/hooks/use-auth';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard: React.FC = () => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
@@ -17,10 +20,40 @@ const Dashboard: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-gray-700 dark:text-gray-300">
-            This is your personalized dashboard. More features will be added here.
-          </p>
-          {/* Future content for choosing account type, managing profile, etc. */}
+          {profile ? (
+            <>
+              <p className="text-gray-700 dark:text-gray-300">
+                You are logged in as a <span className="font-semibold capitalize">{profile.account_type}</span>.
+              </p>
+              {profile.description && (
+                <p className="text-gray-700 dark:text-gray-300">
+                  Description: {profile.description}
+                </p>
+              )}
+              {profile.account_type === 'collector' && profile.looking_for && (
+                <p className="text-gray-700 dark:text-gray-300">
+                  Looking for: {profile.looking_for}
+                </p>
+              )}
+              {profile.account_type === 'consumer' && profile.shipping_address && (
+                <p className="text-gray-700 dark:text-gray-300">
+                  Shipping Address: {profile.shipping_address}
+                </p>
+              )}
+              <Button onClick={() => navigate('/profile-setup')}>
+                Edit Profile
+              </Button>
+            </>
+          ) : (
+            <>
+              <p className="text-gray-700 dark:text-gray-300">
+                It looks like you haven't set up your profile yet.
+              </p>
+              <Button onClick={() => navigate('/profile-setup')}>
+                Set Up Your Profile
+              </Button>
+            </>
+          )}
         </CardContent>
       </Card>
     </div>

@@ -23,8 +23,8 @@ const SignUp = () => {
     if (error) {
       showError(error.message);
     } else {
-      showSuccess('Sign up successful! Please check your email to confirm your account.');
-      navigate('/signin'); // Redirect to sign-in after successful sign-up
+      showSuccess('Sign up successful! Please check your email to confirm your account, then set up your profile.');
+      navigate('/profile-setup'); // Redirect to profile setup after successful sign-up
     }
     setLoading(false);
   };

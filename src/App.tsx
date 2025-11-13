@@ -7,10 +7,11 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
-import Dashboard from "./pages/Dashboard"; // Import the new Dashboard page
+import Dashboard from "./pages/Dashboard";
+import ProfileSetup from "./pages/ProfileSetup"; // Import the new ProfileSetup page
 import AuthLayout from "./components/AuthLayout";
-import ProtectedRoute from "./components/ProtectedRoute"; // Import the new ProtectedRoute
-import Navbar from "./components/Navbar"; // Import the new Navbar
+import ProtectedRoute from "./components/ProtectedRoute";
+import Navbar from "./components/Navbar";
 import { useAuth } from "./hooks/use-auth";
 import React from "react";
 
@@ -33,7 +34,7 @@ const App = () => {
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Navbar /> {/* Add Navbar here */}
+          <Navbar />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/signin" element={<AuthLayout><SignIn /></AuthLayout>} />
@@ -42,6 +43,7 @@ const App = () => {
             {/* Protected Routes */}
             <Route element={<ProtectedRoute />}>
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/profile-setup" element={<ProfileSetup />} /> {/* Add ProfileSetup route */}
               {/* Future protected routes like profile pages will go here */}
             </Route>
 
