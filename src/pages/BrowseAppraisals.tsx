@@ -8,6 +8,8 @@ import { supabase } from '@/lib/supabase';
 import { showError } from '@/utils/toast';
 import { useAuth } from '@/hooks/use-auth';
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Appraisal {
   id: string;
@@ -24,8 +26,11 @@ interface Appraisal {
 const BrowseAppraisals: React.FC = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const [appraisals, setAppraisals] = useState<Appraisal[]>([]);
+  const [allAppraisals, setAllAppraisals] = useState<Appraisal[]>([]);
+  const [filteredAppraisals, setFilteredAppraisals] = useState<Appraisal[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState('newest'); // 'newest', 'oldest', 'value_high', 'value_low'
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -37,19 +42,18 @@ const BrowseAppraisals: React.FC = () => {
       if (!user) return;
 
       setLoading(true);
-      // Fetch appraisals that are either 'appraised' or 'listed'
       const { data, error } = await supabase
         .from('appraisals')
         .select('*')
         .in('status', ['appraised', 'listed'])
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false }); // Default order
 
       if (error) {
         showError(`Error fetching appraisals: ${error.message}`);
         console.error('Error fetching appraisals:', error);
-        setAppraisals([]);
+        setAllAppraisals([]);
       } else {
-        setAppraisals(data || []);
+        setAllAppraisals(data || []);
       }
       setLoading(false);
     };
@@ -58,6 +62,38 @@ const BrowseAppraisals: React.FC = () => {
       fetchAppraisals();
     }
   }, [user, authLoading, navigate]);
+
+  useEffect(() => {
+    let currentAppraisals = [...allAppraisals];
+
+    // Apply search filter
+    if (searchTerm) {
+      currentAppraisals = currentAppraisals.filter(appraisal =>
+        appraisal.item_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        appraisal.item_description.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Apply sorting
+    currentAppraisals.sort((a, b) => {
+      if (sortBy === 'newest') {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      } else if (sortBy === 'oldest') {
+        return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      } else if (sortBy === 'value_high') {
+        const valueA = parseFloat(a.appraisal_data?.estimated_value?.replace(/[^0-9.-]+/g, "") || '0');
+        const valueB = parseFloat(b.appraisal_data?.estimated_value?.replace(/[^0-9.-]+/g, "") || '0');
+        return valueB - valueA;
+      } else if (sortBy === 'value_low') {
+        const valueA = parseFloat(a.appraisal_data?.estimated_value?.replace(/[^0-9.-]+/g, "") || '0');
+        const valueB = parseFloat(b.appraisal_data?.estimated_value?.replace(/[^0-9.-]+/g, "") || '0');
+        return valueA - valueB;
+      }
+      return 0;
+    });
+
+    setFilteredAppraisals(currentAppraisals);
+  }, [searchTerm, sortBy, allAppraisals]);
 
   if (authLoading || loading) {
     return (
@@ -77,10 +113,30 @@ const BrowseAppraisals: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {appraisals.length === 0 ? (
+          <div className="flex flex-col sm:flex-row gap-4 mb-6">
+            <Input
+              placeholder="Search by item name or description..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="flex-grow"
+            />
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">Newest First</SelectItem>
+                <SelectItem value="oldest">Oldest First</SelectItem>
+                <SelectItem value="value_high">Value: High to Low</SelectItem>
+                <SelectItem value="value_low">Value: Low to High</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {filteredAppraisals.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-gray-700 dark:text-gray-300 mb-4">
-                No appraised items are currently available.
+                No appraised items match your criteria.
               </p>
               <Button onClick={() => navigate('/submit-appraisal')}>
                 Submit Your Own Item for Appraisal
@@ -88,7 +144,7 @@ const BrowseAppraisals: React.FC = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {appraisals.map((appraisal) => (
+              {filteredAppraisals.map((appraisal) => (
                 <Card key={appraisal.id} className="flex flex-col">
                   <CardHeader className="flex-grow">
                     <img
