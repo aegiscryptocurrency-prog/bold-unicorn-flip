@@ -8,7 +8,8 @@ import NotFound from "./pages/NotFound";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
-import ProfileSetup from "./pages/ProfileSetup"; // Import the new ProfileSetup page
+import ProfileSetup from "./pages/ProfileSetup";
+import AppraisalSubmission from "./pages/AppraisalSubmission"; // Import the new AppraisalSubmission page
 import AuthLayout from "./components/AuthLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Navbar from "./components/Navbar";
@@ -43,7 +44,8 @@ const App = () => {
             {/* Protected Routes */}
             <Route element={<ProtectedRoute />}>
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/profile-setup" element={<ProfileSetup />} /> {/* Add ProfileSetup route */}
+              <Route path="/profile-setup" element={<ProfileSetup />} />
+              <Route path="/submit-appraisal" element={<AppraisalSubmission />} /> {/* Add AppraisalSubmission route */}
               {/* Future protected routes like profile pages will go here */}
             </Route>
 

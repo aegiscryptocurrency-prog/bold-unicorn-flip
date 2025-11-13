@@ -40,9 +40,14 @@ const Dashboard: React.FC = () => {
                   Shipping Address: {profile.shipping_address}
                 </p>
               )}
-              <Button onClick={() => navigate('/profile-setup')}>
-                Edit Profile
-              </Button>
+              <div className="flex flex-col space-y-2 mt-4">
+                <Button onClick={() => navigate('/profile-setup')}>
+                  Edit Profile
+                </Button>
+                <Button onClick={() => navigate('/submit-appraisal')} variant="secondary">
+                  Submit New Appraisal
+                </Button>
+              </div>
             </>
           ) : (
             <>
