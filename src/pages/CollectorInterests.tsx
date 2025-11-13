@@ -24,13 +24,14 @@ interface RawSupabaseCollectorInterest {
     appraisal_data: {
       estimated_value?: string;
     } | null;
-  } | null | Array<any>; // Allow appraisal to be null, a single object, or an array
+  } | null | Array<any>;
   interested_consumer_profile: {
     id: string;
     account_type: 'collector' | 'consumer';
     description?: string;
     contact_links?: Array<{ type: string; value: string }>;
-  } | null | Array<any>; // Allow profile to be null, a single object, or an array
+    // Removed 'users' array here, email will be fetched separately
+  } | null | Array<any>;
 }
 
 interface InterestDetail {
@@ -52,6 +53,7 @@ interface InterestDetail {
     account_type: 'collector' | 'consumer';
     description?: string;
     contact_links?: Array<{ type: string; value: string }>;
+    email?: string; // This will be the flattened email, added after fetching
   };
 }
 
@@ -93,7 +95,7 @@ const CollectorInterests: React.FC = () => {
         return;
       }
 
-      // Fetch interests for these appraisal IDs
+      // Fetch interests and profiles (without email initially)
       const { data: interestsData, error: interestsError } = await supabase
         .from('interests')
         .select(`
@@ -125,7 +127,23 @@ const CollectorInterests: React.FC = () => {
       } else {
         const rawInterests: RawSupabaseCollectorInterest[] = (interestsData || []) as RawSupabaseCollectorInterest[];
 
-        // Filter out any interests where appraisal or profile data might be null or an empty array
+        const consumerIds = Array.from(new Set(rawInterests.map(item => item.user_id)));
+        let emailMap = new Map<string, string>();
+
+        if (consumerIds.length > 0) {
+          // Fetch emails for these consumer IDs from auth.users
+          const { data: usersData, error: usersError } = await supabase
+            .from('users') // 'users' is the table name for auth.users in Supabase client
+            .select('id, email')
+            .in('id', consumerIds);
+
+          if (usersError) {
+            console.error('Error fetching consumer emails:', usersError);
+          } else {
+            emailMap = new Map(usersData?.map(u => [u.id, u.email || '']) || []);
+          }
+        }
+
         const filteredInterests: InterestDetail[] = rawInterests
           .filter((item): item is Omit<RawSupabaseCollectorInterest, 'appraisal' | 'interested_consumer_profile'> & { appraisal: NonNullable<RawSupabaseCollectorInterest['appraisal']>, interested_consumer_profile: NonNullable<RawSupabaseCollectorInterest['interested_consumer_profile']> } => {
             const appraisal = Array.isArray(item.appraisal) ? item.appraisal[0] : item.appraisal;
@@ -135,6 +153,8 @@ const CollectorInterests: React.FC = () => {
           .map(item => {
             const appraisalData = Array.isArray(item.appraisal) ? item.appraisal[0] : item.appraisal;
             const profileData = Array.isArray(item.interested_consumer_profile) ? item.interested_consumer_profile[0] : item.interested_consumer_profile;
+            
+            const userEmail = emailMap.get(item.user_id); // Get email from the map
 
             return {
               id: item.id,
@@ -153,6 +173,7 @@ const CollectorInterests: React.FC = () => {
                 account_type: profileData.account_type,
                 description: profileData.description,
                 contact_links: profileData.contact_links,
+                email: userEmail, // Assign the fetched email
               },
             };
           });
@@ -213,6 +234,14 @@ const CollectorInterests: React.FC = () => {
                         {interest.interested_consumer_profile?.description || `User ID: ${interest.user_id}`}
                       </TableCell>
                       <TableCell>
+                        {interest.interested_consumer_profile?.email && (
+                          <span className="block text-sm text-muted-foreground">
+                            Email:{' '}
+                            <a href={`mailto:${interest.interested_consumer_profile.email}`} className="underline text-blue-500 hover:text-blue-700">
+                              {interest.interested_consumer_profile.email}
+                            </a>
+                          </span>
+                        )}
                         {interest.interested_consumer_profile?.contact_links?.length ? (
                           interest.interested_consumer_profile.contact_links.map((link, index) => (
                             <span key={index} className="block text-sm text-muted-foreground">
@@ -231,7 +260,7 @@ const CollectorInterests: React.FC = () => {
                             </span>
                           ))
                         ) : (
-                          <span className="text-sm text-muted-foreground">N/A</span>
+                          !interest.interested_consumer_profile?.email && <span className="text-sm text-muted-foreground">N/A</span>
                         )}
                       </TableCell>
                       <TableCell>{new Date(interest.created_at).toLocaleDateString()}</TableCell>
