@@ -213,12 +213,24 @@ const CollectorInterests: React.FC = () => {
                         {interest.interested_consumer_profile?.description || `User ID: ${interest.user_id}`}
                       </TableCell>
                       <TableCell>
-                        {interest.interested_consumer_profile?.contact_links?.map((link, index) => (
-                          <span key={index} className="block text-sm text-muted-foreground">
-                            {link.type}: {link.value}
-                          </span>
-                        ))}
-                        {!interest.interested_consumer_profile?.contact_links?.length && (
+                        {interest.interested_consumer_profile?.contact_links?.length ? (
+                          interest.interested_consumer_profile.contact_links.map((link, index) => (
+                            <span key={index} className="block text-sm text-muted-foreground">
+                              {link.type}:{' '}
+                              {link.type === 'email' ? (
+                                <a href={`mailto:${link.value}`} className="underline text-blue-500 hover:text-blue-700">
+                                  {link.value}
+                                </a>
+                              ) : link.value.startsWith('http') || link.value.startsWith('https') ? (
+                                <a href={link.value} target="_blank" rel="noopener noreferrer" className="underline text-blue-500 hover:text-blue-700">
+                                  {link.value}
+                                </a>
+                              ) : (
+                                link.value
+                              )}
+                            </span>
+                          ))
+                        ) : (
                           <span className="text-sm text-muted-foreground">N/A</span>
                         )}
                       </TableCell>
