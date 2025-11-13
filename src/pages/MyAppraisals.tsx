@@ -16,6 +16,12 @@ interface Appraisal {
   item_description: string;
   item_photo_url: string;
   status: 'pending' | 'appraised' | 'listed';
+  appraisal_data: {
+    history?: string;
+    quality?: string;
+    estimated_value?: string;
+    notes?: string;
+  } | null; // Added appraisal_data
   created_at: string;
 }
 
@@ -37,7 +43,7 @@ const MyAppraisals: React.FC = () => {
       setLoading(true);
       const { data, error } = await supabase
         .from('appraisals')
-        .select('*')
+        .select('*, appraisal_data') // Select appraisal_data
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
@@ -91,6 +97,7 @@ const MyAppraisals: React.FC = () => {
                     <TableHead>Item Name</TableHead>
                     <TableHead>Description</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead>Est. Value</TableHead> {/* New column for estimated value */}
                     <TableHead>Submitted On</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
@@ -114,6 +121,15 @@ const MyAppraisals: React.FC = () => {
                         >
                           {appraisal.status}
                         </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {appraisal.status !== 'pending' && appraisal.appraisal_data?.estimated_value ? (
+                          <span className="font-semibold">
+                            {appraisal.appraisal_data.estimated_value}
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground">N/A</span>
+                        )}
                       </TableCell>
                       <TableCell>{new Date(appraisal.created_at).toLocaleDateString()}</TableCell>
                       <TableCell className="text-right">
