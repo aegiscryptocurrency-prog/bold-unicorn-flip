@@ -11,8 +11,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from '@/lib/supabase';
 import { showSuccess, showError } from '@/utils/toast';
 import { useAuth } from '@/hooks/use-auth';
+import ContactLinksInput from '@/components/ContactLinksInput'; // Import the new component
 
 type AccountType = 'collector' | 'consumer' | '';
+
+interface ContactLink {
+  type: string;
+  value: string;
+}
 
 const ProfileSetup: React.FC = () => {
   const { user, loading: authLoading, profile } = useAuth();
@@ -22,24 +28,25 @@ const ProfileSetup: React.FC = () => {
   const [lookingFor, setLookingFor] = useState(profile?.looking_for || '');
   const [homeAddress, setHomeAddress] = useState(profile?.home_address || '');
   const [shippingAddress, setShippingAddress] = useState(profile?.shipping_address || '');
-  const [contactLinks, setContactLinks] = useState<string>(JSON.stringify(profile?.contact_links || [{ type: 'email', value: user?.email || '' }]));
+  const [contactLinks, setContactLinks] = useState<ContactLink[]>(profile?.contact_links || [{ type: 'email', value: user?.email || '' }]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
       navigate('/signin'); // Redirect if not authenticated
     }
-    if (!authLoading && user && profile && profile.account_type) {
-      // If profile already exists and has an account type, redirect to dashboard
-      // This prevents users from re-setting up their profile unless they explicitly navigate here to edit
-      // For initial setup, we allow them to proceed.
-      // If they are editing, the fields will be pre-filled.
+    if (!authLoading && user && profile) {
+      // If profile already exists, pre-fill fields
       setAccountType(profile.account_type);
       setDescription(profile.description || '');
       setLookingFor(profile.looking_for || '');
       setHomeAddress(profile.home_address || '');
       setShippingAddress(profile.shipping_address || '');
-      setContactLinks(JSON.stringify(profile.contact_links || [{ type: 'email', value: user?.email || '' }]));
+      // Ensure contact_links is an array of objects, default to email if empty
+      setContactLinks(profile.contact_links && profile.contact_links.length > 0 
+        ? profile.contact_links 
+        : [{ type: 'email', value: user?.email || '' }]
+      );
     }
   }, [user, authLoading, profile, navigate]);
 
@@ -56,13 +63,11 @@ const ProfileSetup: React.FC = () => {
 
     setLoading(true);
     try {
-      const parsedContactLinks = JSON.parse(contactLinks); // Assuming contactLinks is a JSON string
-
       const profileData = {
         id: user.id,
         account_type: accountType,
         description,
-        contact_links: parsedContactLinks,
+        contact_links: contactLinks, // Now directly an array of objects
         ...(accountType === 'collector' && { looking_for: lookingFor }),
         ...(accountType === 'consumer' && { home_address: homeAddress, shipping_address: shippingAddress }),
       };
@@ -164,18 +169,7 @@ const ProfileSetup: React.FC = () => {
               </>
             )}
 
-            <div className="grid gap-2">
-              <Label htmlFor="contactLinks">Contact Links (JSON format)</Label>
-              <Textarea
-                id="contactLinks"
-                placeholder='e.g., [{"type": "email", "value": "your@email.com"}, {"type": "app", "value": "your_app_handle"}]'
-                value={contactLinks}
-                onChange={(e) => setContactLinks(e.target.value)}
-              />
-              <p className="text-sm text-muted-foreground">
-                Provide contact links in JSON array format.
-              </p>
-            </div>
+            <ContactLinksInput value={contactLinks} onChange={setContactLinks} />
 
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? 'Saving Profile...' : 'Save Profile'}
