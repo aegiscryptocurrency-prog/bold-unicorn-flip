@@ -5,15 +5,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-import CollectorAccountPage from "./pages/CollectorAccountPage";
-import ConsumerAccountPage from "./pages/ConsumerAccountPage";
-import AppraisalPage from "./pages/AppraisalPage";
-import AppraisalResultPage from "./pages/AppraisalResultPage";
-import FindMatchBuyerPage from "./pages/FindMatchBuyerPage";
-import FindMatchSellerPage from "./pages/FindMatchSellerPage";
-import TransactionPage from "./pages/TransactionPage";
-import TransactionHistoryPage from "./pages/TransactionHistoryPage";
-import MessagesPage from "./pages/MessagesPage"; // Import new page
 
 const queryClient = new QueryClient();
 
@@ -25,15 +16,6 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/collector-account" element={<CollectorAccountPage />} />
-          <Route path="/consumer-account" element={<ConsumerAccountPage />} />
-          <Route path="/appraise-item" element={<AppraisalPage />} />
-          <Route path="/appraisal-result" element={<AppraisalResultPage />} />
-          <Route path="/find-match-buyer" element={<FindMatchBuyerPage />} />
-          <Route path="/find-match-seller" element={<FindMatchSellerPage />} />
-          <Route path="/initiate-transaction" element={<TransactionPage />} />
-          <Route path="/transaction-history" element={<TransactionHistoryPage />} />
-          <Route path="/messages" element={<MessagesPage />} /> {/* New route */}
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
