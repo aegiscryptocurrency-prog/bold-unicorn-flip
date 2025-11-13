@@ -117,7 +117,7 @@ const MyAppraisals: React.FC = () => {
                       </TableCell>
                       <TableCell>{new Date(appraisal.created_at).toLocaleDateString()}</TableCell>
                       <TableCell className="text-right">
-                        <Button variant="ghost" size="sm" onClick={() => console.log('View details for', appraisal.id)}>
+                        <Button variant="ghost" size="sm" onClick={() => navigate(`/appraisal/${appraisal.id}`)}>
                           View Details
                         </Button>
                       </TableCell>

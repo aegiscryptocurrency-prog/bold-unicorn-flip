@@ -10,7 +10,8 @@ import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
 import ProfileSetup from "./pages/ProfileSetup";
 import AppraisalSubmission from "./pages/AppraisalSubmission";
-import MyAppraisals from "./pages/MyAppraisals"; // Import the new MyAppraisals page
+import MyAppraisals from "./pages/MyAppraisals";
+import AppraisalDetails from "./pages/AppraisalDetails"; // Import the new AppraisalDetails page
 import AuthLayout from "./components/AuthLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Navbar from "./components/Navbar";
@@ -47,7 +48,8 @@ const App = () => {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/profile-setup" element={<ProfileSetup />} />
               <Route path="/submit-appraisal" element={<AppraisalSubmission />} />
-              <Route path="/my-appraisals" element={<MyAppraisals />} /> {/* Add MyAppraisals route */}
+              <Route path="/my-appraisals" element={<MyAppraisals />} />
+              <Route path="/appraisal/:id" element={<AppraisalDetails />} /> {/* Add AppraisalDetails route */}
               {/* Future protected routes like profile pages will go here */}
             </Route>
 
