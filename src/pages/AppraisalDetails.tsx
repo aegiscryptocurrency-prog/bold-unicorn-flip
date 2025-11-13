@@ -33,6 +33,7 @@ const AppraisalDetails: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [hasExpressedInterest, setHasExpressedInterest] = useState(false);
   const [interestLoading, setInterestLoading] = useState(false);
+  const [listingLoading, setListingLoading] = useState(false); // New state for listing button
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -102,6 +103,32 @@ const AppraisalDetails: React.FC = () => {
     }
   };
 
+  const handleListItemForSale = async () => {
+    if (!user || !appraisal || appraisal.user_id !== user.id || appraisal.status !== 'appraised') {
+      showError('You are not authorized to list this item or it is not ready to be listed.');
+      return;
+    }
+
+    setListingLoading(true);
+    try {
+      const { error } = await supabase
+        .from('appraisals')
+        .update({ status: 'listed' })
+        .eq('id', appraisal.id);
+
+      if (error) {
+        throw error;
+      }
+      showSuccess('Item successfully listed for sale!');
+      setAppraisal(prev => prev ? { ...prev, status: 'listed' } : null); // Update local state
+    } catch (error: any) {
+      showError(`Error listing item: ${error.message}`);
+      console.error('Error listing item:', error);
+    } finally {
+      setListingLoading(false);
+    }
+  };
+
   if (authLoading || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
@@ -132,6 +159,7 @@ const AppraisalDetails: React.FC = () => {
 
   const isOwner = user?.id === appraisal.user_id;
   const canExpressInterest = profile?.account_type === 'consumer' && !isOwner && (appraisal.status === 'appraised' || appraisal.status === 'listed');
+  const canListItem = isOwner && appraisal.status === 'appraised'; // Only owner can list if status is 'appraised'
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-gray-50 dark:bg-gray-900 p-4">
@@ -183,9 +211,9 @@ const AppraisalDetails: React.FC = () => {
                   Appraisal data is not yet available.
                 </p>
               )}
-              {isOwner && appraisal.status === 'appraised' && (
-                <Button className="w-full">
-                  List Item for Sale (Future Feature)
+              {canListItem && (
+                <Button className="w-full" onClick={handleListItemForSale} disabled={listingLoading}>
+                  {listingLoading ? 'Listing Item...' : 'List Item for Sale'}
                 </Button>
               )}
               {canExpressInterest && (
