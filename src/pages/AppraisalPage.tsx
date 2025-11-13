@@ -6,12 +6,12 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"; // Import Select components
-import { Checkbox } from "@/components/ui/checkbox"; // Import Checkbox component
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { MadeWithDyad } from "@/components/made-with-dyad";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { ImagePlus } from "lucide-react"; // Import ImagePlus icon
+import { ImagePlus } from "lucide-react";
 
 const AppraisalPage = () => {
   const navigate = useNavigate();
@@ -19,11 +19,11 @@ const AppraisalPage = () => {
   const [itemName, setItemName] = useState("");
   const [itemCategory, setItemCategory] = useState("");
   const [itemDescription, setItemDescription] = useState("");
-  const [itemHistory, setItemHistory] = useState(""); // New state for history
-  const [itemCondition, setItemCondition] = useState(""); // New state for condition
-  const [imageFile, setImageFile] = useState<File | null>(null); // Renamed from uploadImage
-  const [imagePreview, setImagePreview] = useState<string | null>(null); // New state for image preview
-  const [agreeTerms, setAgreeTerms] = useState(false); // New state for terms checkbox
+  const [itemHistory, setItemHistory] = useState("");
+  const [itemCondition, setItemCondition] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [agreeTerms, setAgreeTerms] = useState(false);
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -47,8 +47,6 @@ const AppraisalPage = () => {
       return;
     }
 
-    // In a real application, this would send data to a backend for appraisal
-    // and then fetch the actual appraisal result.
     console.log({
       itemName,
       itemCategory,
@@ -59,7 +57,7 @@ const AppraisalPage = () => {
       agreeTerms,
     });
 
-    // Simulate an appraisal result
+    // Simulate an appraisal result with new methodology details
     const mockAppraisalResult = {
       itemName: itemName,
       itemCategory: itemCategory,
@@ -75,11 +73,20 @@ const AppraisalPage = () => {
         "Specialized auction houses",
       ],
       imageUrl: imagePreview || "https://via.placeholder.com/400x300?text=Item+Image",
+      // New appraisal methodology details
+      appraisalMethodology: "Comparative Market Analysis (CMA) and Expert Opinion",
+      dataSources: [
+        "Recent auction results for similar items",
+        "Private sales databases",
+        "Specialized dealer inventories",
+        "Historical sales records",
+        "Current market trends reports",
+      ],
+      expertInsights: `Our certified appraiser, specializing in ${itemCategory}, evaluated the item's unique characteristics, provenance, and current market demand. The valuation reflects a balance between historical significance and contemporary collector interest.`,
     };
 
     toast.success("Appraisal request submitted! Redirecting to results...");
 
-    // Navigate to the appraisal result page, passing the mock data as state
     navigate("/appraisal-result", { state: { appraisalResult: mockAppraisalResult } });
   };
 

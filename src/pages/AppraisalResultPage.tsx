@@ -3,17 +3,15 @@
 import React from "react";
 import AppraisalResultCard from "@/components/AppraisalResultCard";
 import { MadeWithDyad } from "@/components/made-with-dyad";
-import { useLocation, useNavigate } from "react-router-dom"; // Import useLocation and useNavigate
+import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 
 const AppraisalResultPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const appraisalResult = location.state?.appraisalResult; // Access the passed state
+  const appraisalResult = location.state?.appraisalResult;
 
-  // If no appraisal result is found (e.g., direct navigation),
-  // we can use mock data or redirect. For now, let's use mock data as a fallback.
   const defaultMockAppraisalResult = {
     itemName: "Oil Painting: 'Sunset over the Lake'",
     itemCategory: "Fine Art",
@@ -29,7 +27,16 @@ const AppraisalResultPage = () => {
       "Auction Houses (e.g., Sotheby's, Christie's for higher value pieces)",
       "Specialized Art Dealers",
     ],
-    imageUrl: "https://via.placeholder.com/400x300?text=Oil+Painting", // Placeholder image
+    imageUrl: "https://via.placeholder.com/400x300?text=Oil+Painting",
+    // New default fields for appraisal methodology
+    appraisalMethodology: "Comparative Market Analysis (CMA) and Expert Opinion",
+    dataSources: [
+      "Artnet Price Database",
+      "Christie's Auction Archives",
+      "Sotheby's Sales Results",
+      "Academic Art Journals",
+    ],
+    expertInsights: "The valuation considers the artist's known works, the painting's condition, and recent sales of comparable regional impressionist pieces. The provenance adds a layer of historical value.",
   };
 
   const displayResult = appraisalResult || defaultMockAppraisalResult;
