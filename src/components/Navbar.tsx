@@ -38,6 +38,9 @@ const Navbar: React.FC = () => {
             <Link to="/my-appraisals" className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">
               My Appraisals
             </Link>
+            <Link to="/browse-appraisals" className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">
+              Browse Appraisals
+            </Link>
             <Button onClick={handleSignOut} variant="outline">
               Sign Out
             </Button>

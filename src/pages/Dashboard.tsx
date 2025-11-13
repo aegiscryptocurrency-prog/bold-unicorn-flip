@@ -50,6 +50,9 @@ const Dashboard: React.FC = () => {
                 <Button onClick={() => navigate('/my-appraisals')} variant="outline">
                   View My Appraisals
                 </Button>
+                <Button onClick={() => navigate('/browse-appraisals')} variant="ghost">
+                  Browse Appraised Items
+                </Button>
               </div>
             </>
           ) : (
