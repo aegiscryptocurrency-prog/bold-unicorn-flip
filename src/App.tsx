@@ -14,7 +14,8 @@ import MyAppraisals from "./pages/MyAppraisals";
 import AppraisalDetails from "./pages/AppraisalDetails";
 import BrowseAppraisals from "./pages/BrowseAppraisals";
 import AppraisalManagement from "./pages/AppraisalManagement";
-import MyInterests from "./pages/MyInterests"; // Import the new MyInterests page
+import MyInterests from "./pages/MyInterests";
+import CollectorInterests from "./pages/CollectorInterests"; // Import the new CollectorInterests page
 import AuthLayout from "./components/AuthLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Navbar from "./components/Navbar";
@@ -59,6 +60,7 @@ const App = () => {
             {/* Collector-specific Protected Route */}
             <Route element={<ProtectedRoute requiredAccountType="collector" />}>
               <Route path="/appraisal-management" element={<AppraisalManagement />} />
+              <Route path="/collector-interests" element={<CollectorInterests />} /> {/* Add CollectorInterests route */}
             </Route>
 
             {/* Consumer-specific Protected Route */}

@@ -54,9 +54,14 @@ const Dashboard: React.FC = () => {
                   Browse Appraised Items
                 </Button>
                 {profile.account_type === 'collector' && (
-                  <Button onClick={() => navigate('/appraisal-management')} variant="default">
-                    Appraisal Management
-                  </Button>
+                  <>
+                    <Button onClick={() => navigate('/appraisal-management')} variant="default">
+                      Appraisal Management
+                    </Button>
+                    <Button onClick={() => navigate('/collector-interests')} variant="default">
+                      Interests in My Items
+                    </Button>
+                  </>
                 )}
                 {profile.account_type === 'consumer' && (
                   <Button onClick={() => navigate('/my-interests')} variant="default">

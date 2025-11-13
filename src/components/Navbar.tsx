@@ -42,9 +42,14 @@ const Navbar: React.FC = () => {
               Browse Appraisals
             </Link>
             {profile?.account_type === 'collector' && (
-              <Link to="/appraisal-management" className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">
-                Appraisal Management
-              </Link>
+              <>
+                <Link to="/appraisal-management" className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">
+                  Appraisal Management
+                </Link>
+                <Link to="/collector-interests" className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">
+                  Collector Interests
+                </Link>
+              </>
             )}
             {profile?.account_type === 'consumer' && (
               <Link to="/my-interests" className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">
