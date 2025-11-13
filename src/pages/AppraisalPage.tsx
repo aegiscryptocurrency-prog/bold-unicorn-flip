@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import { ImagePlus } from "lucide-react";
 import { supabase } from "@/lib/supabase"; // Import Supabase client
 import { v4 as uuidv4 } from 'uuid'; // For generating unique file names
+import { TablesInsert } from "@/types/supabase"; // Import TablesInsert type
 
 const AppraisalPage = () => {
   const navigate = useNavigate();
@@ -51,7 +52,7 @@ const AppraisalPage = () => {
     }
 
     setIsSubmitting(true);
-    let imageUrl = null;
+    let imageUrl: string | null = null;
 
     try {
       // 1. Upload image to Supabase Storage
@@ -78,20 +79,20 @@ const AppraisalPage = () => {
       imageUrl = publicUrlData.publicUrl;
 
       // 2. Insert appraisal request into Supabase database
+      const newAppraisalRequest: TablesInsert<'appraisal_requests'> = {
+        item_name: itemName,
+        item_category: itemCategory,
+        item_description: itemDescription,
+        item_history: itemHistory || null, // Ensure null if empty string
+        item_condition: itemCondition,
+        image_url: imageUrl,
+        agreed_terms: agreeTerms,
+        // user_id: (await supabase.auth.getUser()).data.user?.id, // Uncomment when authentication is fully set up
+      };
+
       const { data, error: insertError } = await supabase
         .from('appraisal_requests')
-        .insert([
-          {
-            item_name: itemName,
-            item_category: itemCategory,
-            item_description: itemDescription,
-            item_history: itemHistory,
-            item_condition: itemCondition,
-            image_url: imageUrl,
-            agreed_terms: agreeTerms,
-            // user_id: (await supabase.auth.getUser()).data.user?.id, // Uncomment when authentication is fully set up
-          },
-        ])
+        .insert([newAppraisalRequest])
         .select(); // Select the inserted data to get the ID
 
       if (insertError) {
@@ -99,6 +100,10 @@ const AppraisalPage = () => {
       }
 
       const newRequestId = data?.[0]?.id;
+
+      if (!newRequestId) {
+        throw new Error("Failed to retrieve new request ID after insertion.");
+      }
 
       toast.success("Appraisal request submitted! We're processing your request.");
 

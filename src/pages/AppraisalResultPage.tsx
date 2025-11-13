@@ -2,15 +2,19 @@
 
 import React, { useEffect, useState } from "react";
 import AppraisalResultCard from "@/components/AppraisalResultCard";
-import { MadeWithDyad } from "@/components/made-with-dyad"; // Fixed import syntax
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { MadeWithDyad } from "@/components/made-with-dyad";
+import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"; // Added Card imports
-import { Separator } from "@/components/ui/separator"; // Added Separator import
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Tables } from "@/types/supabase"; // Import Tables type
+
+type AppraisalRequestRow = Tables<'appraisal_requests'>;
+type AppraisalResultRow = Tables<'appraisal_results'>;
 
 const AppraisalResultPage = () => {
   const navigate = useNavigate();
@@ -31,22 +35,23 @@ const AppraisalResultPage = () => {
       setError(null);
 
       const pollForResult = async () => {
-        const { data, error } = await supabase
+        const { data: resultData, error: resultError } = await supabase
           .from('appraisal_results')
           .select('*')
           .eq('request_id', requestId)
           .single();
 
-        if (error && error.code === 'PGRST116') {
+        if (resultError && resultError.code === 'PGRST116') {
+          // If not found, it means the trigger hasn't processed it yet. Poll again.
           setTimeout(pollForResult, 3000);
-        } else if (error) {
-          console.error("Error fetching appraisal result:", error);
-          setError(`Failed to load appraisal result: ${error.message}`);
+        } else if (resultError) {
+          console.error("Error fetching appraisal result:", resultError);
+          setError(`Failed to load appraisal result: ${resultError.message}`);
           setIsLoading(false);
-        } else if (data) {
+        } else if (resultData) {
           const { data: requestData, error: requestError } = await supabase
             .from('appraisal_requests')
-            .select('item_name, item_category, item_history, item_description, image_url') // Added item_history and item_description
+            .select('item_name, item_category, item_history, item_description, image_url')
             .eq('id', requestId)
             .single();
 
@@ -57,20 +62,26 @@ const AppraisalResultPage = () => {
             return;
           }
 
+          if (!requestData) {
+            setError("Appraisal request details not found.");
+            setIsLoading(false);
+            return;
+          }
+
           setAppraisalResult({
-            itemName: requestData?.item_name,
-            itemCategory: requestData?.item_category,
-            appraisedValue: data.appraised_value,
-            currency: data.currency,
-            history: requestData?.item_history || "Not provided.",
-            description: requestData?.item_description || "Not provided.",
-            qualityAssessment: data.quality_assessment,
-            qualityExplanation: data.quality_explanation,
-            sellBuyOptions: data.sell_buy_options,
-            imageUrl: requestData?.image_url || "https://via.placeholder.com/400x300?text=Item+Image",
-            appraisalMethodology: data.appraisal_methodology,
-            dataSources: data.data_sources,
-            expertInsights: data.expert_insights,
+            itemName: requestData.item_name,
+            itemCategory: requestData.item_category,
+            appraisedValue: resultData.appraised_value,
+            currency: resultData.currency,
+            history: requestData.item_history || "Not provided.",
+            description: requestData.item_description || "Not provided.",
+            qualityAssessment: resultData.quality_assessment,
+            qualityExplanation: resultData.quality_explanation,
+            sellBuyOptions: resultData.sell_buy_options,
+            imageUrl: requestData.image_url || "https://via.placeholder.com/400x300?text=Item+Image",
+            appraisalMethodology: resultData.appraisal_methodology,
+            dataSources: resultData.data_sources,
+            expertInsights: resultData.expert_insights,
           });
           setIsLoading(false);
         }
@@ -80,7 +91,7 @@ const AppraisalResultPage = () => {
     };
 
     fetchAppraisalResult();
-  }, [requestId]);
+  }, [requestId, navigate]); // Added navigate to dependency array
 
   if (isLoading) {
     return (
