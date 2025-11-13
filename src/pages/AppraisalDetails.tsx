@@ -5,7 +5,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from '@/lib/supabase';
-import { showError } from '@/utils/toast';
+import { showError, showSuccess } from '@/utils/toast';
 import { useAuth } from '@/hooks/use-auth';
 import { Badge } from "@/components/ui/badge";
 
@@ -28,9 +28,11 @@ interface Appraisal {
 const AppraisalDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user, loading: authLoading } = useAuth();
+  const { user, profile, loading: authLoading } = useAuth();
   const [appraisal, setAppraisal] = useState<Appraisal | null>(null);
   const [loading, setLoading] = useState(true);
+  const [hasExpressedInterest, setHasExpressedInterest] = useState(false);
+  const [interestLoading, setInterestLoading] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -38,7 +40,7 @@ const AppraisalDetails: React.FC = () => {
       return;
     }
 
-    const fetchAppraisalDetails = async () => {
+    const fetchAppraisalDetailsAndInterest = async () => {
       if (!user || !id) return;
 
       setLoading(true);
@@ -46,7 +48,6 @@ const AppraisalDetails: React.FC = () => {
         .from('appraisals')
         .select('*')
         .eq('id', id)
-        .eq('user_id', user.id) // Ensure user can only view their own appraisals
         .single();
 
       if (error) {
@@ -55,14 +56,51 @@ const AppraisalDetails: React.FC = () => {
         setAppraisal(null);
       } else {
         setAppraisal(data);
+        // Check if the current user has already expressed interest
+        if (profile?.account_type === 'consumer') {
+          const { data: interestData, error: interestError } = await supabase
+            .from('interests')
+            .select('id')
+            .eq('user_id', user.id)
+            .eq('appraisal_id', id)
+            .single();
+          
+          if (interestData) {
+            setHasExpressedInterest(true);
+          } else if (interestError && interestError.code !== 'PGRST116') { // PGRST116 means "no rows found"
+            console.error('Error checking interest:', interestError);
+          }
+        }
       }
       setLoading(false);
     };
 
     if (user && id) {
-      fetchAppraisalDetails();
+      fetchAppraisalDetailsAndInterest();
     }
-  }, [user, authLoading, id, navigate]);
+  }, [user, profile, authLoading, id, navigate]);
+
+  const handleExpressInterest = async () => {
+    if (!user || !appraisal) return;
+    setInterestLoading(true);
+    try {
+      const { error } = await supabase.from('interests').insert({
+        user_id: user.id,
+        appraisal_id: appraisal.id,
+      });
+
+      if (error) {
+        throw error;
+      }
+      showSuccess('Interest expressed successfully!');
+      setHasExpressedInterest(true);
+    } catch (error: any) {
+      showError(`Error expressing interest: ${error.message}`);
+      console.error('Error expressing interest:', error);
+    } finally {
+      setInterestLoading(false);
+    }
+  };
 
   if (authLoading || loading) {
     return (
@@ -79,12 +117,12 @@ const AppraisalDetails: React.FC = () => {
           <CardHeader>
             <CardTitle className="text-2xl font-bold">Appraisal Not Found</CardTitle>
             <CardDescription>
-              The appraisal you are looking for does not exist or you do not have permission to view it.
+              The appraisal you are looking for does not exist.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={() => navigate('/my-appraisals')}>
-              Back to My Appraisals
+            <Button onClick={() => navigate('/browse-appraisals')}>
+              Back to Browse Appraisals
             </Button>
           </CardContent>
         </Card>
@@ -92,13 +130,16 @@ const AppraisalDetails: React.FC = () => {
     );
   }
 
+  const isOwner = user?.id === appraisal.user_id;
+  const canExpressInterest = profile?.account_type === 'consumer' && !isOwner && (appraisal.status === 'appraised' || appraisal.status === 'listed');
+
   return (
     <div className="min-h-screen flex flex-col items-center bg-gray-50 dark:bg-gray-900 p-4">
       <Card className="w-full max-w-3xl mt-8">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-bold">{appraisal.item_name}</CardTitle>
           <CardDescription>
-            Details for your appraisal submission.
+            Details for this appraisal.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -142,20 +183,29 @@ const AppraisalDetails: React.FC = () => {
                   Appraisal data is not yet available.
                 </p>
               )}
-              {appraisal.status === 'appraised' && (
+              {isOwner && appraisal.status === 'appraised' && (
                 <Button className="w-full">
                   List Item for Sale (Future Feature)
+                </Button>
+              )}
+              {canExpressInterest && (
+                <Button 
+                  onClick={handleExpressInterest} 
+                  className="w-full" 
+                  disabled={hasExpressedInterest || interestLoading}
+                >
+                  {interestLoading ? 'Expressing Interest...' : hasExpressedInterest ? 'Interest Expressed' : 'Express Interest'}
                 </Button>
               )}
             </div>
           ) : (
             <p className="text-center text-gray-600 dark:text-gray-400">
-              Your appraisal is currently pending review. Please check back later for results.
+              This appraisal is currently pending review.
             </p>
           )}
 
-          <Button variant="outline" onClick={() => navigate('/my-appraisals')} className="w-full">
-            Back to My Appraisals
+          <Button variant="outline" onClick={() => navigate('/browse-appraisals')} className="w-full">
+            Back to Browse Appraisals
           </Button>
         </CardContent>
       </Card>

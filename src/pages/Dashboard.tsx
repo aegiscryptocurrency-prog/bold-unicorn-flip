@@ -58,6 +58,11 @@ const Dashboard: React.FC = () => {
                     Appraisal Management
                   </Button>
                 )}
+                {profile.account_type === 'consumer' && (
+                  <Button onClick={() => navigate('/my-interests')} variant="default">
+                    My Interests
+                  </Button>
+                )}
               </div>
             </>
           ) : (

@@ -13,7 +13,8 @@ import AppraisalSubmission from "./pages/AppraisalSubmission";
 import MyAppraisals from "./pages/MyAppraisals";
 import AppraisalDetails from "./pages/AppraisalDetails";
 import BrowseAppraisals from "./pages/BrowseAppraisals";
-import AppraisalManagement from "./pages/AppraisalManagement"; // Import the new AppraisalManagement page
+import AppraisalManagement from "./pages/AppraisalManagement";
+import MyInterests from "./pages/MyInterests"; // Import the new MyInterests page
 import AuthLayout from "./components/AuthLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Navbar from "./components/Navbar";
@@ -58,6 +59,11 @@ const App = () => {
             {/* Collector-specific Protected Route */}
             <Route element={<ProtectedRoute requiredAccountType="collector" />}>
               <Route path="/appraisal-management" element={<AppraisalManagement />} />
+            </Route>
+
+            {/* Consumer-specific Protected Route */}
+            <Route element={<ProtectedRoute requiredAccountType="consumer" />}>
+              <Route path="/my-interests" element={<MyInterests />} />
             </Route>
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
